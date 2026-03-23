@@ -1,36 +1,34 @@
 import type { Metadata } from "next";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 
-const dmSans = DM_Sans({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-display",
   display: "swap",
 });
 
-const fraunces = Fraunces({
+const sourceSans = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-body",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "ReceiptSnap AI — Stop Overpaying Taxes on Contractor Income",
-  description: "Snap a photo of any receipt. AI categorizes it for taxes instantly. Export a tax-ready spreadsheet. Built for self-employed contractors, freelancers, and consultants. Join the waitlist.",
-  keywords: ["receipt tracker", "self employed expenses", "contractor tax deductions", "expense tracking app", "tax receipt organizer"],
-  authors: [{ name: "ReceiptSnap AI" }],
+  title: "ReceiptSnap AI — Stop Overpaying Taxes on Your Contractor Income",
+  description: "AI-powered receipt tracking for self-employed contractors, freelancers, and gig workers. Snap photos, auto-categorize for taxes, export tax-ready spreadsheets. Join the waitlist for early access.",
+  keywords: ["receipt tracker", "self-employed tax deductions", "contractor expense tracking", "AI receipt scanner", "Schedule C expenses"],
   openGraph: {
-    title: "ReceiptSnap AI — Stop Overpaying Taxes on Contractor Income",
-    description: "Snap receipts in 10 seconds. AI categorizes them for taxes. Export to your accountant in one click. Join the waitlist for early access.",
+    title: "ReceiptSnap AI — Stop Overpaying Taxes",
+    description: "Self-employed? Stop losing $1,200+ in tax deductions. AI-powered receipt tracking that actually works.",
+    type: "website",
     url: "https://receiptsnap.ai",
     siteName: "ReceiptSnap AI",
-    locale: "en_US",
-    type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "ReceiptSnap AI — Stop Overpaying Taxes",
-    description: "AI-powered receipt tracking for self-employed professionals. Join the waitlist.",
+    description: "Self-employed? Stop losing $1,200+ in tax deductions. AI-powered receipt tracking that actually works.",
   },
   robots: {
     index: true,
@@ -44,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${sourceSans.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <script
@@ -54,14 +52,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "ReceiptSnap AI",
-              description: "AI-powered receipt tracking and tax categorization for self-employed professionals",
+              description: "AI-powered receipt tracking for self-employed professionals",
               url: "https://receiptsnap.ai",
-              foundingDate: "2024",
-              contactPoint: {
-                "@type": "ContactPoint",
-                email: "hello@receiptsnap.ai",
-                contactType: "customer service",
-              },
             }),
           }}
         />
@@ -74,18 +66,10 @@ export default function RootLayout({
               mainEntity: [
                 {
                   "@type": "Question",
-                  name: "Is my data secure with ReceiptSnap?",
+                  name: "How accurate is the AI at reading receipts?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes. All receipt images and financial data are encrypted in transit (TLS 1.3) and at rest (AES-256). We use Supabase for our database, which is SOC 2 Type II compliant. We never sell your data.",
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: "How accurate is the AI categorization?",
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: "Our AI achieves 95%+ accuracy on standard receipts. For ambiguous items, it learns from your corrections — after 10-20 receipts, accuracy approaches 99% for your spending patterns.",
+                    text: "The AI is designed to achieve 95%+ accuracy on standard printed receipts. You can manually correct any errors, and the system learns from your corrections.",
                   },
                 },
                 {
@@ -93,7 +77,15 @@ export default function RootLayout({
                   name: "When does ReceiptSnap launch?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "We're launching in January 2025. Waitlist members get early access in December 2024 to start capturing receipts before the tax-season rush.",
+                    text: "We're in early access now with a full public launch planned for Q1 2026. Join the waitlist for immediate early access.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is my data secure?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes. We use 256-bit encryption, store data on SOC 2 compliant infrastructure, and never access your bank accounts.",
                   },
                 },
               ],
@@ -101,9 +93,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-[family-name:var(--font-dm-sans)] antialiased">
-        {children}
-              <script defer src="/pipeline-telemetry.js" data-telemetry-token="ac071513-106d-4641-b03a-6c75f7c12025" data-telemetry-base-url="https://hooks.pointline.dev"></script>
+      <body className="antialiased">{children}        <script defer src="/pipeline-telemetry.js" data-telemetry-token="348f08f5-0213-4c55-b0fe-b97dc424b276" data-telemetry-base-url="https://hooks.pointline.dev"></script>
       </body>
     </html>
   );

@@ -14,16 +14,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the subscription (Supabase integration will be added by Coder Agent)
-    console.log(`[WAITLIST SIGNUP] Email: ${email}, Name: ${name || "N/A"}, Timestamp: ${new Date().toISOString()}`);
+    // Log the subscription (Supabase integration to be added by Coder Agent)
+    console.log("New waitlist signup:", { email, name, timestamp: new Date().toISOString() });
 
     // Return success response
-    return NextResponse.json({
-      success: true,
-      message: "You're on the waitlist! We'll email you when early access is ready.",
-    });
+    return NextResponse.json(
+      { 
+        success: true, 
+        message: "You're on the waitlist! We'll notify you when ReceiptSnap is ready." 
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("[WAITLIST ERROR]", error);
+    console.error("Subscription error:", error);
     return NextResponse.json(
       { success: false, message: "Something went wrong. Please try again." },
       { status: 500 }

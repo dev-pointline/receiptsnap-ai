@@ -14,28 +14,11 @@ function useIntersectionObserver(options = {}) {
       }
     }, { threshold: 0.1, ...options });
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
+    if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
 
   return { ref, isVisible };
-}
-
-function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const { ref, isVisible } = useIntersectionObserver();
-  
-  return (
-    <div
-      ref={ref}
-      className={`${className} ${isVisible ? 'animate-fade-in-up opacity-100' : 'opacity-0'}`}
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
 }
 
 export default function Home() {
@@ -44,19 +27,30 @@ export default function Home() {
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const heroSection = useIntersectionObserver();
+  const credibilitySection = useIntersectionObserver();
+  const problemSection = useIntersectionObserver();
+  const solutionSection = useIntersectionObserver();
+  const featuresSection = useIntersectionObserver();
+  const howItWorksSection = useIntersectionObserver();
+  const useCasesSection = useIntersectionObserver();
+  const pricingSection = useIntersectionObserver();
+  const faqSection = useIntersectionObserver();
+  const finalCtaSection = useIntersectionObserver();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes("@")) return;
+    if (!email || isSubmitting) return;
     
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/subscribe", {
+      const response = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
-      if (data.success) {
+      
+      if (response.ok) {
         setSubmitStatus("success");
         setEmail("");
       } else {
@@ -71,27 +65,24 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[var(--color-warm-white)]">
-      {/* Sticky Navigation */}
+      {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--color-warm-white)]/95 backdrop-blur-sm border-b border-[var(--color-forest)]/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[var(--color-forest)] rounded-lg flex items-center justify-center">
-                <span className="text-white text-lg">📸</span>
+              <div className="w-8 h-8 bg-[var(--color-mint)] rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">RS</span>
               </div>
-              <span className="font-[family-name:var(--font-fraunces)] font-semibold text-[var(--color-forest)] text-lg">ReceiptSnap</span>
+              <span className="font-[var(--font-display)] font-bold text-xl text-[var(--color-forest)]">ReceiptSnap</span>
             </div>
             
-            {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium">Features</a>
-              <a href="#how-it-works" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium">How It Works</a>
               <a href="#pricing" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium">Pricing</a>
               <a href="#faq" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium">FAQ</a>
-              <a href="#waitlist" className="bg-[var(--color-forest)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-forest-light)] transition-colors">Join Waitlist</a>
+              <a href="#waitlist" className="bg-[var(--color-forest)] text-white px-5 py-2 rounded-lg font-semibold hover:bg-[var(--color-sage)] transition-colors text-sm">Join Waitlist</a>
             </div>
 
-            {/* Mobile Menu Button */}
             <button 
               className="md:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -106,131 +97,127 @@ export default function Home() {
               </svg>
             </button>
           </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-[var(--color-forest)]/10">
-              <div className="flex flex-col gap-4">
-                <a href="#features" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Features</a>
-                <a href="#how-it-works" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
-                <a href="#pricing" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
-                <a href="#faq" className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
-                <a href="#waitlist" className="bg-[var(--color-forest)] text-white px-4 py-2 rounded-lg text-sm font-medium text-center hover:bg-[var(--color-forest-light)] transition-colors" onClick={() => setMobileMenuOpen(false)}>Join Waitlist</a>
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[var(--color-warm-white)] border-t border-[var(--color-forest)]/10 py-4 px-4">
+            <div className="flex flex-col gap-4">
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors font-medium">Features</a>
+              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors font-medium">Pricing</a>
+              <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-[var(--color-slate)] hover:text-[var(--color-forest)] transition-colors font-medium">FAQ</a>
+              <a href="#waitlist" onClick={() => setMobileMenuOpen(false)} className="bg-[var(--color-forest)] text-white px-5 py-3 rounded-lg font-semibold text-center">Join Waitlist</a>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 sm:pt-32 sm:pb-24 gradient-mesh noise-overlay relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section ref={heroSection.ref} className="pt-24 pb-16 md:pt-32 md:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 bg-[var(--color-forest)]/10 text-[var(--color-forest)] px-3 py-1.5 rounded-full text-sm font-medium mb-6">
+            <div className={`${heroSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+              <div className="inline-flex items-center gap-2 bg-[var(--color-mint)]/10 text-[var(--color-sage)] px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <span className="w-2 h-2 bg-[var(--color-mint)] rounded-full animate-pulse"></span>
-                Launching January 2025
+                Early Access Available Now
               </div>
               
-              <h1 className="font-[family-name:var(--font-fraunces)] text-4xl sm:text-5xl lg:text-6xl font-bold text-[var(--color-charcoal)] leading-[1.1] mb-6">
-                Stop Overpaying Taxes on Your{" "}
-                <span className="text-[var(--color-forest)]">Contractor Income</span>
+              <h1 className="font-[var(--font-display)] text-4xl sm:text-5xl lg:text-6xl font-bold text-[var(--color-forest)] leading-tight mb-6">
+                Stop Overpaying Taxes on Your Contractor Income
               </h1>
               
-              <p className="text-lg sm:text-xl text-[var(--color-slate)] mb-8 leading-relaxed max-w-xl">
-                Snap a photo of any receipt in 10 seconds. Our AI categorizes it for taxes instantly. Export a tax-ready spreadsheet when your accountant asks. No more lost receipts, missed deductions, or Sunday afternoons drowning in Excel.
+              <p className="text-lg sm:text-xl text-[var(--color-slate)] mb-8 leading-relaxed">
+                Self-employed professionals miss <span className="text-[var(--color-forest)] font-semibold">$1,200+ in tax deductions</span> every year because receipts get lost, crumpled, or forgotten. ReceiptSnap AI turns any receipt photo into a tax-ready spreadsheet in seconds.
               </p>
-
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" id="waitlist">
+              
+              <form onSubmit={handleSubmit} id="waitlist" className="flex flex-col sm:flex-row gap-3 mb-4">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 rounded-lg border border-[var(--color-forest)]/20 focus:border-[var(--color-forest)] focus:ring-2 focus:ring-[var(--color-forest)]/20 outline-none transition-all text-[var(--color-charcoal)]"
+                  className="flex-1 px-5 py-4 rounded-xl border-2 border-[var(--color-forest)]/20 focus:border-[var(--color-mint)] focus:outline-none text-[var(--color-charcoal)] bg-white transition-colors"
                   required
                 />
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[var(--color-forest)] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[var(--color-forest-light)] transition-all disabled:opacity-70 whitespace-nowrap shadow-lg shadow-[var(--color-forest)]/20 hover:shadow-xl hover:shadow-[var(--color-forest)]/30 hover:-translate-y-0.5"
+                  className="bg-[var(--color-forest)] text-white px-8 py-4 rounded-xl font-bold hover:bg-[var(--color-sage)] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap animate-pulse-glow"
                 >
-                  {isSubmitting ? "Joining..." : "Join the Waitlist"}
+                  {isSubmitting ? "Joining..." : "Join Waitlist"}
                 </button>
               </form>
               
               {submitStatus === "success" && (
-                <p className="mt-3 text-[var(--color-forest)] font-medium flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  You&apos;re on the list! We&apos;ll email you when early access is ready.
-                </p>
+                <p className="text-[var(--color-mint)] font-medium mb-4">You&apos;re on the list! Check your email for next steps.</p>
               )}
               {submitStatus === "error" && (
-                <p className="mt-3 text-red-600 font-medium">Something went wrong. Please try again.</p>
+                <p className="text-red-500 font-medium mb-4">Something went wrong. Please try again.</p>
               )}
-
-              <p className="mt-4 text-sm text-[var(--color-slate)]">
-                Be one of the first 100 contractors to get Founder Pricing
+              
+              <p className="text-sm text-[var(--color-slate)]">
+                Be one of the first 500 contractors to try it free • No credit card required
               </p>
             </div>
-
-            {/* Hero Visual */}
-            <div className="relative animate-fade-in animation-delay-300">
-              <div className="relative bg-gradient-to-br from-[var(--color-forest)]/5 to-[var(--color-mint)]/10 rounded-3xl p-8 lg:p-12">
-                {/* Before/After Phone Mockup */}
-                <div className="flex items-center justify-center gap-4 sm:gap-8">
-                  {/* Before - Chaos */}
+            
+            <div className={`relative ${heroSection.isVisible ? "animate-fade-in-up delay-300" : "opacity-0"}`}>
+              <div className="relative bg-gradient-to-br from-[var(--color-cream)] to-[var(--color-warm-white)] rounded-3xl p-8 shadow-2xl">
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Before Phone */}
                   <div className="relative">
-                    <div className="w-32 sm:w-40 h-64 sm:h-72 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                      <div className="h-6 bg-gray-100 flex items-center justify-center">
-                        <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
-                      </div>
-                      <div className="p-3 space-y-2">
-                        <div className="w-full h-8 bg-gray-100 rounded transform rotate-2"></div>
-                        <div className="w-full h-8 bg-gray-100 rounded transform -rotate-1"></div>
-                        <div className="w-full h-8 bg-gray-100 rounded transform rotate-3"></div>
-                        <div className="w-3/4 h-8 bg-gray-100 rounded transform -rotate-2"></div>
-                        <div className="w-full h-8 bg-gray-100 rounded transform rotate-1"></div>
-                        <div className="text-center text-xs text-gray-400 mt-4">📦 Chaos</div>
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-500/90 text-white text-xs font-bold px-3 py-1 rounded-full">The Chaos</div>
+                    <div className="bg-[var(--color-charcoal)] rounded-2xl p-3 shadow-xl">
+                      <div className="bg-gray-800 rounded-xl p-2 space-y-2">
+                        <div className="h-12 bg-gray-600/50 rounded-lg transform rotate-2"></div>
+                        <div className="h-10 bg-gray-500/50 rounded-lg transform -rotate-1"></div>
+                        <div className="h-14 bg-gray-600/50 rounded-lg transform rotate-3"></div>
+                        <div className="h-8 bg-gray-500/50 rounded-lg"></div>
+                        <div className="h-12 bg-gray-600/50 rounded-lg transform -rotate-2"></div>
                       </div>
                     </div>
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">!</div>
                   </div>
-
-                  {/* Arrow */}
-                  <div className="text-[var(--color-forest)] text-2xl animate-pulse-gentle">→</div>
-
-                  {/* After - Organized */}
-                  <div className="relative">
-                    <div className="w-32 sm:w-40 h-64 sm:h-72 bg-white rounded-2xl shadow-xl border border-[var(--color-forest)]/20 overflow-hidden">
-                      <div className="h-6 bg-[var(--color-forest)] flex items-center justify-center">
-                        <div className="w-12 h-1 bg-white/30 rounded-full"></div>
-                      </div>
-                      <div className="p-3 space-y-2">
-                        <div className="w-full h-8 bg-[var(--color-mint)]/20 rounded flex items-center px-2 gap-2">
-                          <span className="text-[var(--color-forest)]">✓</span>
-                          <span className="text-xs text-[var(--color-charcoal)]">Home Depot</span>
+                  
+                  {/* After Phone */}
+                  <div className="relative animate-float">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-mint)] text-white text-xs font-bold px-3 py-1 rounded-full">Organized</div>
+                    <div className="bg-[var(--color-charcoal)] rounded-2xl p-3 shadow-xl">
+                      <div className="bg-white rounded-xl p-2 space-y-2">
+                        <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
+                          <span className="text-xs font-medium text-[var(--color-charcoal)]">Supplies</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-bold text-[var(--color-forest)]">$847</span>
+                            <span className="text-green-500">✓</span>
+                          </div>
                         </div>
-                        <div className="w-full h-8 bg-[var(--color-mint)]/20 rounded flex items-center px-2 gap-2">
-                          <span className="text-[var(--color-forest)]">✓</span>
-                          <span className="text-xs text-[var(--color-charcoal)]">Shell Gas</span>
+                        <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
+                          <span className="text-xs font-medium text-[var(--color-charcoal)]">Fuel</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-bold text-[var(--color-forest)]">$234</span>
+                            <span className="text-green-500">✓</span>
+                          </div>
                         </div>
-                        <div className="w-full h-8 bg-[var(--color-mint)]/20 rounded flex items-center px-2 gap-2">
-                          <span className="text-[var(--color-forest)]">✓</span>
-                          <span className="text-xs text-[var(--color-charcoal)]">Lowes</span>
+                        <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
+                          <span className="text-xs font-medium text-[var(--color-charcoal)]">Tools</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-bold text-[var(--color-forest)]">$1,203</span>
+                            <span className="text-green-500">✓</span>
+                          </div>
                         </div>
-                        <div className="w-full h-8 bg-[var(--color-mint)]/20 rounded flex items-center px-2 gap-2">
-                          <span className="text-[var(--color-forest)]">✓</span>
-                          <span className="text-xs text-[var(--color-charcoal)]">AutoZone</span>
+                        <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
+                          <span className="text-xs font-medium text-[var(--color-charcoal)]">Meals</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-bold text-[var(--color-forest)]">$156</span>
+                            <span className="text-green-500">✓</span>
+                          </div>
                         </div>
-                        <div className="text-center text-xs text-[var(--color-forest)] mt-4 font-medium">📊 Organized</div>
                       </div>
                     </div>
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-[var(--color-mint)] rounded-full flex items-center justify-center text-[var(--color-forest)] text-xs font-bold">✓</div>
                   </div>
                 </div>
+                
+                {/* Decorative elements */}
+                <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-[var(--color-gold)]/20 rounded-full blur-2xl"></div>
+                <div className="absolute -top-4 -left-4 w-32 h-32 bg-[var(--color-mint)]/20 rounded-full blur-2xl"></div>
               </div>
             </div>
           </div>
@@ -238,502 +225,633 @@ export default function Home() {
       </section>
 
       {/* Credibility Bar */}
-      <section className="py-8 bg-[var(--color-forest)]/5 border-y border-[var(--color-forest)]/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-[var(--color-forest)] font-medium text-center md:text-left">
-              Built for self-employed contractors, freelancers, and consultants
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-              <span className="text-[var(--color-slate)] text-sm px-3 py-1 bg-white rounded-full border border-[var(--color-forest)]/10">QuickBooks Export</span>
-              <span className="text-[var(--color-slate)] text-sm px-3 py-1 bg-white rounded-full border border-[var(--color-forest)]/10">Excel/CSV</span>
-              <span className="text-[var(--color-slate)] text-sm px-3 py-1 bg-white rounded-full border border-[var(--color-forest)]/10">TurboTax Ready</span>
-              <span className="text-[var(--color-slate)] text-sm px-3 py-1 bg-white rounded-full border border-[var(--color-forest)]/10">IRS Compliant</span>
+      <section ref={credibilitySection.ref} className="py-12 px-4 sm:px-6 lg:px-8 bg-[var(--color-cream)]">
+        <div className={`max-w-7xl mx-auto ${credibilitySection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+          <p className="text-center text-[var(--color-forest)] font-medium mb-8">
+            Built for self-employed contractors, freelancers, and gig workers managing $30K-$500K in annual income
+          </p>
+          
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 mb-8">
+            <div className="flex items-center gap-2 text-[var(--color-slate)]">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              <span className="text-sm font-medium">QuickBooks Export</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--color-slate)]">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              <span className="text-sm font-medium">Excel/CSV Export</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--color-slate)]">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              <span className="text-sm font-medium">TurboTax Compatible</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--color-slate)]">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span className="text-sm font-medium">IRS Schedule C</span>
             </div>
           </div>
+          
+          <p className="text-center text-[var(--color-charcoal)] text-sm">
+            <span className="font-semibold">93% of self-employed workers</span> don&apos;t track all deductible expenses — costing them an average of <span className="font-semibold text-[var(--color-forest)]">$1,200+ annually</span> in overpaid taxes.
+          </p>
         </div>
       </section>
 
       {/* Problem Section */}
-      <section className="py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12 sm:mb-16">
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl font-bold text-[var(--color-charcoal)] mb-4">
+      <section ref={problemSection.ref} className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 ${problemSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+            <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-forest)] mb-4">
               Sound Familiar?
             </h2>
-            <p className="text-[var(--color-slate)] text-lg max-w-2xl mx-auto">
-              The average self-employed worker misses $1,200+ in tax deductions annually due to lost or miscategorized receipts.
+            <p className="text-lg text-[var(--color-slate)] max-w-2xl mx-auto">
+              Every self-employed person knows these struggles. Here&apos;s what&apos;s costing you money.
             </p>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
-            <AnimatedSection delay={100} className="bg-white p-6 sm:p-8 rounded-2xl border border-[var(--color-forest)]/10 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-[var(--color-gold)]/10 rounded-xl flex items-center justify-center text-2xl mb-4">📦</div>
-              <h3 className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[var(--color-charcoal)] mb-3">The Shoebox Problem</h3>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className={`bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:shadow-xl transition-shadow ${problemSection.isVisible ? "animate-fade-in-up delay-100" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center mb-6">
+                <span className="text-3xl">🧾</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-4">
+                Receipts Disappear Into the Void
+              </h3>
               <p className="text-[var(--color-slate)] leading-relaxed">
-                Crumpled in your truck console. Buried in your camera roll. Fading in your wallet. Research shows <strong>40% of deductible receipts get lost</strong> before tax season. That&apos;s real money disappearing.
+                You buy tools at Home Depot, materials at Lowe&apos;s, fuel at Shell — and the receipts end up crumpled in your truck console, faded in your wallet, or lost in a camera roll of 10,000 photos. <span className="font-semibold text-[var(--color-charcoal)]">40% of business receipts are lost before tax season</span>, costing the average contractor $480+ in missed deductions.
               </p>
-            </AnimatedSection>
-
-            <AnimatedSection delay={200} className="bg-white p-6 sm:p-8 rounded-2xl border border-[var(--color-forest)]/10 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-[var(--color-gold)]/10 rounded-xl flex items-center justify-center text-2xl mb-4">⏰</div>
-              <h3 className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[var(--color-charcoal)] mb-3">The Sunday Dread</h3>
-              <p className="text-[var(--color-slate)] leading-relaxed">
-                Every February, you&apos;re hunched over a laptop, squinting at faded receipts, typing amounts into Excel. That&apos;s <strong>$1,125 of your time</strong> (at $75/hr) spent on bookkeeping instead of billable work.
-              </p>
-            </AnimatedSection>
-
-            <AnimatedSection delay={300} className="bg-white p-6 sm:p-8 rounded-2xl border border-[var(--color-forest)]/10 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-[var(--color-gold)]/10 rounded-xl flex items-center justify-center text-2xl mb-4">💸</div>
-              <h3 className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[var(--color-charcoal)] mb-3">Missed Deduction Anxiety</h3>
-              <p className="text-[var(--color-slate)] leading-relaxed">
-                The average contractor leaves <strong>$1,200-2,000 on the table</strong> every year. That Home Depot run for drill bits? Deductible. Your phone bill? Partially deductible. But if you can&apos;t prove it, you can&apos;t claim it.
-              </p>
-            </AnimatedSection>
-          </div>
-        </div>
-      </section>
-
-      {/* Solution / Before-After */}
-      <section className="py-16 sm:py-24 bg-[var(--color-forest)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12 sm:mb-16">
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl font-bold text-white mb-4">
-              From Chaos to Clarity
-            </h2>
-            <p className="text-white/70 text-lg max-w-2xl mx-auto">
-              See how ReceiptSnap transforms your tax prep workflow
-            </p>
-          </AnimatedSection>
-
-          <div className="space-y-4 sm:space-y-6">
-            {[
-              { before: "Receipts crumple in your truck for months", after: "Snap a photo in 10 seconds, it's saved forever" },
-              { before: "5+ minutes per receipt to manually type into Excel", after: "AI reads and categorizes in 2 seconds" },
-              { before: 'Guessing tax categories ("Is this Supplies or Equipment?")', after: "Automatic IRS Schedule C categorization" },
-              { before: "Dreading your accountant's February email", after: "Export a clean spreadsheet in one click, anytime" },
-              { before: "Losing $1,200/year in missed deductions", after: "Every receipt tracked, every deduction captured" },
-            ].map((item, index) => (
-              <AnimatedSection key={index} delay={index * 100} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-                <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded-xl p-4 sm:p-5">
-                  <div className="flex items-start gap-3">
-                    <span className="text-red-400 text-lg">✗</span>
-                    <p className="text-white/80">{item.before}</p>
-                  </div>
-                </div>
-                <div className="hidden sm:block text-white/40 text-xl">→</div>
-                <div className="sm:hidden flex justify-center text-white/40 text-lg">↓</div>
-                <div className="flex-1 bg-[var(--color-mint)]/10 border border-[var(--color-mint)]/20 rounded-xl p-4 sm:p-5">
-                  <div className="flex items-start gap-3">
-                    <span className="text-[var(--color-mint)] text-lg">✓</span>
-                    <p className="text-white">{item.after}</p>
-                  </div>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12 sm:mb-16">
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl font-bold text-[var(--color-charcoal)] mb-4">
-              Everything You Need, Nothing You Don&apos;t
-            </h2>
-            <p className="text-[var(--color-slate)] text-lg max-w-2xl mx-auto">
-              Simple, focused features designed to save you time and money
-            </p>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              { icon: "📸", title: "Instant OCR Scanning", description: "Point your phone at any receipt — crumpled, faded, or coffee-stained. Our AI extracts the merchant, date, amount, and line items in under 2 seconds.", benefit: "Save 10+ minutes per receipt" },
-              { icon: "🧠", title: "Smart Tax Categorization", description: "Every receipt is automatically sorted into IRS Schedule C categories. The AI learns YOUR patterns — if you always buy tools at Home Depot, it remembers.", benefit: "95%+ accuracy out of the box" },
-              { icon: "📊", title: "One-Click Tax Export", description: "Export your entire year to Excel, CSV, or PDF. Organized by category, totaled automatically, formatted exactly how CPAs expect it.", benefit: "Accountant-ready in 60 seconds" },
-              { icon: "☁️", title: "Photo Backup Forever", description: "Every receipt photo is backed up automatically. IRS wants proof from 3 years ago? Pull it up in seconds. No more digging through filing cabinets.", benefit: "Audit anxiety? Gone." },
-              { icon: "📈", title: "Year-Round Tax Insights", description: "See your deductible expenses by category in real-time. Monthly summaries and quarterly tax estimate reminders help you avoid April surprises.", benefit: "Know your numbers all year" },
-              { icon: "📶", title: "Works Offline", description: "On a rural job site with no cell service? Snap the receipt anyway. It syncs automatically when you're back online.", benefit: "Never miss a deduction" },
-            ].map((feature, index) => (
-              <AnimatedSection key={index} delay={index * 100} className="bg-white p-6 sm:p-8 rounded-2xl border border-[var(--color-forest)]/10 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-                <div className="w-14 h-14 bg-[var(--color-forest)]/5 group-hover:bg-[var(--color-forest)]/10 rounded-2xl flex items-center justify-center text-3xl mb-5 transition-colors">
-                  {feature.icon}
-                </div>
-                <h3 className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[var(--color-charcoal)] mb-3">{feature.title}</h3>
-                <p className="text-[var(--color-slate)] leading-relaxed mb-4">{feature.description}</p>
-                <p className="text-[var(--color-forest)] font-medium text-sm">→ {feature.benefit}</p>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how-it-works" className="py-16 sm:py-24 bg-gradient-to-b from-[var(--color-cream)] to-[var(--color-warm-white)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12 sm:mb-16">
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl font-bold text-[var(--color-charcoal)] mb-4">
-              Three Steps to Tax-Ready
-            </h2>
-            <p className="text-[var(--color-slate)] text-lg max-w-2xl mx-auto">
-              The entire process takes under 60 seconds
-            </p>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-            {[
-              { step: "1", title: "Snap", description: "Open the app, tap the camera button, and snap a photo. Takes 10 seconds. Works with crumpled, faded, or partially torn receipts.", icon: "📱" },
-              { step: "2", title: "Review", description: "See the merchant, amount, and tax category appear in 2 seconds. Quick glance to confirm it's right. Tap to adjust if needed.", icon: "✅" },
-              { step: "3", title: "Export", description: "At tax time, hit Export. Choose Excel, CSV, or PDF. Get a clean spreadsheet organized by IRS category. Email it to your CPA. Done.", icon: "📤" },
-            ].map((step, index) => (
-              <AnimatedSection key={index} delay={index * 150} className="relative">
-                <div className="text-center">
-                  <div className="relative inline-block mb-6">
-                    <div className="w-20 h-20 bg-[var(--color-forest)] rounded-2xl flex items-center justify-center text-4xl shadow-lg">
-                      {step.icon}
-                    </div>
-                    <div className="absolute -top-2 -left-2 w-8 h-8 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      {step.step}
-                    </div>
-                  </div>
-                  <h3 className="font-[family-name:var(--font-fraunces)] text-2xl font-semibold text-[var(--color-charcoal)] mb-3">{step.title}</h3>
-                  <p className="text-[var(--color-slate)] leading-relaxed">{step.description}</p>
-                </div>
-                {index < 2 && (
-                  <div className="hidden md:block absolute top-10 -right-6 lg:-right-8 text-[var(--color-forest)]/30 text-4xl">→</div>
-                )}
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Use Cases */}
-      <section className="py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12 sm:mb-16">
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl font-bold text-[var(--color-charcoal)] mb-4">
-              Built for How You Work
-            </h2>
-            <p className="text-[var(--color-slate)] text-lg max-w-2xl mx-auto">
-              Real scenarios from self-employed professionals like you
-            </p>
-          </AnimatedSection>
-
-          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                persona: "🔌 The Solo Electrician",
-                name: "Mike",
-                context: "Runs to Home Depot 3x a week for wire, outlets, and tools. Fills up his truck daily.",
-                story: "Before ReceiptSnap, 60% of his receipts ended up crumpled in his center console — lost by December. Now, he snaps each receipt right at checkout while walking to his truck. Takes 10 seconds. By tax time, he'll have 400+ organized receipts and an estimated $3,200 in additional deductions.",
-                highlight: "$3,200 in saved deductions"
-              },
-              {
-                persona: "💼 The Freelance Consultant",
-                name: "Sarah",
-                context: "Works from home, meets clients at coffee shops, and attends 2-3 conferences a year.",
-                story: "Her expenses used to be scattered across personal credit cards, Venmo, and cash. She spent 8 hours every February sorting them. With ReceiptSnap, she forwards digital receipts via email, snaps photos of paper ones, and the AI handles categorization. Her accountant gets a clean export with home office, travel, and software subscriptions all separated.",
-                highlight: "8 hours saved every February"
-              },
-              {
-                persona: "🚗 The Gig Driver",
-                name: "James",
-                context: "Drives 600+ miles a week for Uber/DoorDash. Fills up every other day.",
-                story: "At $0.67/mile, that's $400+/week in deductions he was barely tracking. He also buys phone chargers, phone mounts, and cleaning supplies. ReceiptSnap captures every gas receipt and automatically calculates his mileage deduction. Combined with miscellaneous expenses, he's projected to find $8,000+ in annual deductions.",
-                highlight: "$8,000+ in annual deductions"
-              }
-            ].map((useCase, index) => (
-              <AnimatedSection key={index} delay={index * 150} className="bg-white rounded-2xl border border-[var(--color-forest)]/10 overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-                <div className="bg-[var(--color-forest)]/5 px-6 py-4">
-                  <span className="text-2xl">{useCase.persona.split(" ")[0]}</span>
-                  <h3 className="font-[family-name:var(--font-fraunces)] text-lg font-semibold text-[var(--color-charcoal)] mt-2">{useCase.persona.slice(3)}</h3>
-                  <p className="text-[var(--color-slate)] text-sm mt-1">{useCase.context}</p>
-                </div>
-                <div className="p-6">
-                  <p className="text-[var(--color-slate)] leading-relaxed mb-4">{useCase.story}</p>
-                  <div className="bg-[var(--color-mint)]/10 rounded-lg px-4 py-3 inline-block">
-                    <p className="text-[var(--color-forest)] font-semibold text-sm">{useCase.highlight}</p>
-                  </div>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-
-          <AnimatedSection delay={500} className="mt-8 text-center">
-            <p className="text-[var(--color-slate)] text-sm italic">
-              * These are projected use cases based on research data, not testimonials from existing users.
-            </p>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="py-16 sm:py-24 bg-[var(--color-forest)]/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center gap-2 bg-[var(--color-gold)]/10 text-[var(--color-gold)] px-3 py-1.5 rounded-full text-sm font-medium mb-4">
-              Planned Launch Pricing
             </div>
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl font-bold text-[var(--color-charcoal)] mb-4">
+            
+            <div className={`bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:shadow-xl transition-shadow ${problemSection.isVisible ? "animate-fade-in-up delay-200" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
+                <span className="text-3xl">😰</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-4">
+                Your Accountant Asks, You Scramble
+              </h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                Every February, your accountant sends the dreaded email: &quot;I need all your business expenses categorized by type.&quot; You spend <span className="font-semibold text-[var(--color-charcoal)]">15-20 hours</span> digging through photos, bank statements, and memory — trying to remember if that $347 charge was for tools or personal groceries.
+              </p>
+            </div>
+            
+            <div className={`bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:shadow-xl transition-shadow ${problemSection.isVisible ? "animate-fade-in-up delay-300" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-[var(--color-gold)]/20 rounded-xl flex items-center justify-center mb-6">
+                <span className="text-3xl">💸</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-4">
+                You Pay More Than You Owe
+              </h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                Without organized receipts, you miss legitimate deductions: the mileage to job sites, the work boots, the phone bill, the home office supplies. The IRS doesn&apos;t remind you of deductions you forgot — they just take your money. Self-employed workers overpay an average of <span className="font-semibold text-[var(--color-charcoal)]">$1,200/year</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Solution Section */}
+      <section ref={solutionSection.ref} className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--color-forest)]">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 ${solutionSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+            <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+              Before vs. After ReceiptSnap
+            </h2>
+            <p className="text-lg text-[var(--color-mint)] max-w-2xl mx-auto">
+              See how receipt tracking transforms from your biggest headache to a 10-second habit.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className={`${solutionSection.isVisible ? "animate-fade-in-up delay-100" : "opacity-0"}`}>
+              <div className="bg-red-500/20 rounded-xl p-6 mb-4">
+                <p className="text-red-200 font-medium mb-2">❌ Before</p>
+                <p className="text-white/90">Receipts crumple in your truck for months, fade to illegible white, get thrown away with fast food wrappers</p>
+              </div>
+              <div className="bg-[var(--color-mint)]/20 rounded-xl p-6">
+                <p className="text-[var(--color-mint)] font-medium mb-2">✅ After</p>
+                <p className="text-white/90">Snap a photo in 10 seconds at checkout — it&apos;s saved forever, readable even if the paper fades</p>
+              </div>
+            </div>
+            
+            <div className={`${solutionSection.isVisible ? "animate-fade-in-up delay-200" : "opacity-0"}`}>
+              <div className="bg-red-500/20 rounded-xl p-6 mb-4">
+                <p className="text-red-200 font-medium mb-2">❌ Before</p>
+                <p className="text-white/90">Spend 15+ hours in February sorting through photos, guessing categories, and manually typing into Excel</p>
+              </div>
+              <div className="bg-[var(--color-mint)]/20 rounded-xl p-6">
+                <p className="text-[var(--color-mint)] font-medium mb-2">✅ After</p>
+                <p className="text-white/90">AI reads and categorizes every receipt automatically — export a clean spreadsheet in one click when your accountant asks</p>
+              </div>
+            </div>
+            
+            <div className={`${solutionSection.isVisible ? "animate-fade-in-up delay-300" : "opacity-0"}`}>
+              <div className="bg-red-500/20 rounded-xl p-6 mb-4">
+                <p className="text-red-200 font-medium mb-2">❌ Before</p>
+                <p className="text-white/90">Miss $500-2,000 in legitimate deductions because you can&apos;t find or remember all your business expenses</p>
+              </div>
+              <div className="bg-[var(--color-mint)]/20 rounded-xl p-6">
+                <p className="text-[var(--color-mint)] font-medium mb-2">✅ After</p>
+                <p className="text-white/90">Every expense is captured, categorized, and ready for Schedule C — designed to help you find every deduction you&apos;ve earned</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section ref={featuresSection.ref} id="features" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 ${featuresSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+            <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-forest)] mb-4">
+              Everything You Need to Stop Overpaying
+            </h2>
+            <p className="text-lg text-[var(--color-slate)] max-w-2xl mx-auto">
+              AI-powered features designed specifically for self-employed professionals.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className={`group bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:border-[var(--color-mint)]/50 transition-all ${featuresSection.isVisible ? "animate-fade-in-up delay-100" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-[var(--color-mint)]/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[var(--color-mint)]/20 transition-colors">
+                <span className="text-3xl">🤖</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-3">AI-Powered OCR</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                Reads any receipt — even crumpled, faded, or handwritten. Extracts merchant, date, amount, and line items with 95%+ accuracy.
+              </p>
+            </div>
+            
+            <div className={`group bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:border-[var(--color-mint)]/50 transition-all ${featuresSection.isVisible ? "animate-fade-in-up delay-200" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-[var(--color-mint)]/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[var(--color-mint)]/20 transition-colors">
+                <span className="text-3xl">📊</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-3">Smart Tax Categorization</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                Auto-sorts into IRS Schedule C categories: Supplies, Tools, Fuel, Meals, Vehicle Expenses, Home Office, and more. Learns your patterns.
+              </p>
+            </div>
+            
+            <div className={`group bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:border-[var(--color-mint)]/50 transition-all ${featuresSection.isVisible ? "animate-fade-in-up delay-300" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-[var(--color-mint)]/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[var(--color-mint)]/20 transition-colors">
+                <span className="text-3xl">📤</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-3">One-Click Export</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                Generate a clean CSV or PDF organized by category, date, and amount. Compatible with QuickBooks, Excel, TurboTax, and any accounting software.
+              </p>
+            </div>
+            
+            <div className={`group bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:border-[var(--color-mint)]/50 transition-all ${featuresSection.isVisible ? "animate-fade-in-up delay-400" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-[var(--color-mint)]/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[var(--color-mint)]/20 transition-colors">
+                <span className="text-3xl">📅</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-3">Year-Round Tracking</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                See expenses by week, month, or quarter. Get alerts when you&apos;re spending more than usual. Know your profit margins in real-time.
+              </p>
+            </div>
+            
+            <div className={`group bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:border-[var(--color-mint)]/50 transition-all ${featuresSection.isVisible ? "animate-fade-in-up delay-500" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-[var(--color-mint)]/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[var(--color-mint)]/20 transition-colors">
+                <span className="text-3xl">🚗</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-3">Mileage Integration</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                IRS allows $0.67/mile deduction. Track every drive to job sites automatically. 500 miles/week = $17,000+ in annual deductions.
+              </p>
+            </div>
+            
+            <div className={`group bg-white rounded-2xl p-8 shadow-lg border border-[var(--color-forest)]/5 hover:border-[var(--color-mint)]/50 transition-all ${featuresSection.isVisible ? "animate-fade-in-up delay-600" : "opacity-0"}`}>
+              <div className="w-14 h-14 bg-[var(--color-mint)]/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[var(--color-mint)]/20 transition-colors">
+                <span className="text-3xl">🔒</span>
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-3">Bank-Level Security</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                256-bit encryption, SOC 2 compliant infrastructure. We never access your bank accounts — only the receipts you upload. Delete data anytime.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section ref={howItWorksSection.ref} className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--color-cream)]">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 ${howItWorksSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+            <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-forest)] mb-4">
+              How It Works
+            </h2>
+            <p className="text-lg text-[var(--color-slate)] max-w-2xl mx-auto">
+              Three steps. Under 60 seconds. Done.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            <div className={`text-center ${howItWorksSection.isVisible ? "animate-fade-in-up delay-100" : "opacity-0"}`}>
+              <div className="w-20 h-20 bg-[var(--color-forest)] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl font-bold shadow-lg">
+                1
+              </div>
+              <h3 className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-forest)] mb-3">Snap</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                Take a photo of any receipt at checkout, in your truck, or at your desk. Our mobile-optimized upload handles any image quality.
+              </p>
+            </div>
+            
+            <div className={`text-center ${howItWorksSection.isVisible ? "animate-fade-in-up delay-200" : "opacity-0"}`}>
+              <div className="w-20 h-20 bg-[var(--color-sage)] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl font-bold shadow-lg">
+                2
+              </div>
+              <h3 className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-forest)] mb-3">Categorize</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                Within 2 seconds, AI extracts all the data and assigns it to the right tax category. Review and adjust if needed.
+              </p>
+            </div>
+            
+            <div className={`text-center ${howItWorksSection.isVisible ? "animate-fade-in-up delay-300" : "opacity-0"}`}>
+              <div className="w-20 h-20 bg-[var(--color-mint)] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl font-bold shadow-lg">
+                3
+              </div>
+              <h3 className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-forest)] mb-3">Export</h3>
+              <p className="text-[var(--color-slate)] leading-relaxed">
+                One click generates a clean spreadsheet with all expenses organized by category. Email it, download it, or sync to your accounting software.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases Section */}
+      <section ref={useCasesSection.ref} className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 ${useCasesSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+            <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-forest)] mb-4">
+              Built for People Like You
+            </h2>
+            <p className="text-lg text-[var(--color-slate)] max-w-2xl mx-auto">
+              See how different self-employed professionals would use ReceiptSnap.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className={`bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-8 border border-orange-100 ${useCasesSection.isVisible ? "animate-fade-in-up delay-100" : "opacity-0"}`}>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">⚡</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[var(--color-forest)]">Solo Electrician</h3>
+                  <p className="text-sm text-[var(--color-slate)]">25+ receipts/week, 1,300+/year</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-white/60 rounded-lg p-4">
+                  <p className="text-sm font-medium text-red-600 mb-1">Without ReceiptSnap</p>
+                  <p className="text-sm text-[var(--color-charcoal)]">Stuffs receipts in glove box. Spends two Sundays in February typing into Excel. Misses $800-1,200 in deductions.</p>
+                </div>
+                <div className="bg-white/60 rounded-lg p-4">
+                  <p className="text-sm font-medium text-[var(--color-mint)] mb-1">With ReceiptSnap</p>
+                  <p className="text-sm text-[var(--color-charcoal)]">Snaps each receipt at checkout. Exports in 30 seconds at tax time. Projected to find <span className="font-bold">$3,200 in additional deductions</span>.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className={`bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-indigo-100 ${useCasesSection.isVisible ? "animate-fade-in-up delay-200" : "opacity-0"}`}>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">💼</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[var(--color-forest)]">Freelance Consultant</h3>
+                  <p className="text-sm text-[var(--color-slate)]">Software, travel, home office</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-white/60 rounded-lg p-4">
+                  <p className="text-sm font-medium text-red-600 mb-1">Without ReceiptSnap</p>
+                  <p className="text-sm text-[var(--color-charcoal)]">47 browser tabs of subscription receipts. A folder of unorganized photos. No idea what she spent last year.</p>
+                </div>
+                <div className="bg-white/60 rounded-lg p-4">
+                  <p className="text-sm font-medium text-[var(--color-mint)] mb-1">With ReceiptSnap</p>
+                  <p className="text-sm text-[var(--color-charcoal)]">Forwards email receipts, snaps physical ones. AI categorizes automatically. <span className="font-bold">Quarterly tax estimates are finally accurate</span>.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className={`bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 border border-emerald-100 ${useCasesSection.isVisible ? "animate-fade-in-up delay-300" : "opacity-0"}`}>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">🚗</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[var(--color-forest)]">Gig Economy Driver</h3>
+                  <p className="text-sm text-[var(--color-slate)]">Mileage, gas, phone, car washes</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-white/60 rounded-lg p-4">
+                  <p className="text-sm font-medium text-red-600 mb-1">Without ReceiptSnap</p>
+                  <p className="text-sm text-[var(--color-charcoal)]">No system. Guesses mileage at tax time. Claims 60% of actual miles. Leaving $8,000+ in deductions on the table.</p>
+                </div>
+                <div className="bg-white/60 rounded-lg p-4">
+                  <p className="text-sm font-medium text-[var(--color-mint)] mb-1">With ReceiptSnap</p>
+                  <p className="text-sm text-[var(--color-charcoal)]">Logs mileage automatically. Snaps gas receipts. Complete record at tax time. <span className="font-bold">Tax bill drops by $2,100</span>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-center text-sm text-[var(--color-slate)] mt-8 italic">
+            These are projected use cases based on research data and user interviews, not testimonials from existing customers.
+          </p>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section ref={pricingSection.ref} id="pricing" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--color-forest)]">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 ${pricingSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+            <div className="inline-flex items-center gap-2 bg-[var(--color-mint)]/20 text-[var(--color-mint)] px-4 py-2 rounded-full text-sm font-medium mb-6">
+              Planned Launch Pricing — Early Access Available Now
+            </div>
+            <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
               Simple, Transparent Pricing
             </h2>
-            <p className="text-[var(--color-slate)] text-lg max-w-2xl mx-auto">
-              Pick the plan that matches your receipt volume. Upgrade or downgrade anytime.
+            <p className="text-lg text-[var(--color-mint)] max-w-2xl mx-auto">
+              Pay less than you&apos;d lose in missed deductions. Save 20% with annual billing.
             </p>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {/* Starter */}
-            <AnimatedSection delay={100} className="bg-white rounded-2xl border border-[var(--color-forest)]/10 overflow-hidden">
-              <div className="p-6 sm:p-8">
-                <h3 className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[var(--color-charcoal)] mb-2">Starter</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-bold text-[var(--color-charcoal)]">$19</span>
-                  <span className="text-[var(--color-slate)]">/month</span>
-                </div>
-                <p className="text-sm text-[var(--color-slate)] mb-6">or $159/year (save $69)</p>
-                <ul className="space-y-3 mb-8">
-                  {["50 receipts/month", "AI categorization", "Excel/CSV export", "Cloud backup", "Email support"].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[var(--color-slate)]">
-                      <span className="text-[var(--color-forest)] mt-0.5">✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <a href="#waitlist" className="block w-full text-center bg-[var(--color-forest)]/10 text-[var(--color-forest)] px-4 py-3 rounded-lg font-semibold hover:bg-[var(--color-forest)]/20 transition-colors">
-                  Join Waitlist
-                </a>
-              </div>
-            </AnimatedSection>
-
-            {/* Pro - Most Popular */}
-            <AnimatedSection delay={200} className="bg-white rounded-2xl border-2 border-[var(--color-forest)] overflow-hidden relative shadow-lg">
-              <div className="absolute top-0 left-0 right-0 bg-[var(--color-forest)] text-white text-center py-1.5 text-sm font-medium">
-                ⭐ Most Popular
-              </div>
-              <div className="p-6 sm:p-8 pt-12">
-                <h3 className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[var(--color-charcoal)] mb-2">Pro</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-bold text-[var(--color-charcoal)]">$39</span>
-                  <span className="text-[var(--color-slate)]">/month</span>
-                </div>
-                <p className="text-sm text-[var(--color-slate)] mb-6">or $299/year (save $169)</p>
-                <ul className="space-y-3 mb-8">
-                  {["200 receipts/month", "Everything in Starter", "Mileage tracking", "Quarterly tax estimates", "Priority support", "QuickBooks export"].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[var(--color-slate)]">
-                      <span className="text-[var(--color-forest)] mt-0.5">✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <a href="#waitlist" className="block w-full text-center bg-[var(--color-forest)] text-white px-4 py-3 rounded-lg font-semibold hover:bg-[var(--color-forest-light)] transition-colors shadow-lg">
-                  Join Waitlist
-                </a>
-              </div>
-            </AnimatedSection>
-
-            {/* Unlimited */}
-            <AnimatedSection delay={300} className="bg-white rounded-2xl border border-[var(--color-forest)]/10 overflow-hidden">
-              <div className="p-6 sm:p-8">
-                <h3 className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[var(--color-charcoal)] mb-2">Unlimited</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-bold text-[var(--color-charcoal)]">$69</span>
-                  <span className="text-[var(--color-slate)]">/month</span>
-                </div>
-                <p className="text-sm text-[var(--color-slate)] mb-6">or $499/year (save $329)</p>
-                <ul className="space-y-3 mb-8">
-                  {["Unlimited receipts", "Everything in Pro", "Multiple businesses", "Team access (coming)", "Onboarding call"].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[var(--color-slate)]">
-                      <span className="text-[var(--color-forest)] mt-0.5">✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <a href="#waitlist" className="block w-full text-center bg-[var(--color-forest)]/10 text-[var(--color-forest)] px-4 py-3 rounded-lg font-semibold hover:bg-[var(--color-forest)]/20 transition-colors">
-                  Join Waitlist
-                </a>
-              </div>
-            </AnimatedSection>
           </div>
-
-          {/* Pricing FAQs */}
-          <AnimatedSection delay={400} className="mt-12 sm:mt-16 max-w-3xl mx-auto">
-            <div className="grid sm:grid-cols-3 gap-6">
-              <div className="text-center">
-                <h4 className="font-semibold text-[var(--color-charcoal)] mb-2">When does it launch?</h4>
-                <p className="text-[var(--color-slate)] text-sm">January 2025. Waitlist members get early access in December.</p>
+          
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-6">
+            {/* Starter Plan */}
+            <div className={`bg-white rounded-2xl p-8 ${pricingSection.isVisible ? "animate-fade-in-up delay-100" : "opacity-0"}`}>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-2">Starter</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold text-[var(--color-forest)]">$19</span>
+                <span className="text-[var(--color-slate)]">/month</span>
               </div>
-              <div className="text-center">
-                <h4 className="font-semibold text-[var(--color-charcoal)] mb-2">Free trial?</h4>
-                <p className="text-[var(--color-slate)] text-sm">Yes! 30-day free trial, no credit card required.</p>
-              </div>
-              <div className="text-center">
-                <h4 className="font-semibold text-[var(--color-charcoal)] mb-2">Cancel anytime?</h4>
-                <p className="text-[var(--color-slate)] text-sm">Absolutely. No contracts, no fees. Pro-rata refunds on annual plans.</p>
-              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> 100 receipts/month
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> AI categorization
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> CSV/PDF export
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Mobile app access
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Email support
+                </li>
+              </ul>
+              <a href="#waitlist" className="block w-full text-center bg-[var(--color-forest)] text-white py-3 rounded-xl font-semibold hover:bg-[var(--color-sage)] transition-colors">
+                Join Waitlist
+              </a>
             </div>
-          </AnimatedSection>
+            
+            {/* Pro Plan */}
+            <div className={`bg-white rounded-2xl p-8 ring-2 ring-[var(--color-mint)] relative ${pricingSection.isVisible ? "animate-fade-in-up delay-200" : "opacity-0"}`}>
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--color-mint)] text-white text-sm font-bold px-4 py-1 rounded-full">
+                Most Popular
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-2">Pro</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold text-[var(--color-forest)]">$39</span>
+                <span className="text-[var(--color-slate)]">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Everything in Starter
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> <strong>Unlimited</strong> receipts
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Mileage tracking
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Quarterly tax estimates
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> QuickBooks integration
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Priority support
+                </li>
+              </ul>
+              <a href="#waitlist" className="block w-full text-center bg-[var(--color-mint)] text-white py-3 rounded-xl font-semibold hover:bg-[var(--color-sage)] transition-colors">
+                Join Waitlist
+              </a>
+            </div>
+            
+            {/* Business Plan */}
+            <div className={`bg-white rounded-2xl p-8 ${pricingSection.isVisible ? "animate-fade-in-up delay-300" : "opacity-0"}`}>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[var(--color-forest)] mb-2">Business</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold text-[var(--color-forest)]">$69</span>
+                <span className="text-[var(--color-slate)]">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Everything in Pro
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Multiple businesses
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Team members (up to 3)
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Custom categories
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> API access
+                </li>
+                <li className="flex items-center gap-3 text-[var(--color-charcoal)]">
+                  <span className="text-[var(--color-mint)]">✓</span> Dedicated support
+                </li>
+              </ul>
+              <a href="#waitlist" className="block w-full text-center bg-[var(--color-forest)] text-white py-3 rounded-xl font-semibold hover:bg-[var(--color-sage)] transition-colors">
+                Join Waitlist
+              </a>
+            </div>
+          </div>
+          
+          {/* Pricing FAQs */}
+          <div className={`mt-16 grid md:grid-cols-3 gap-8 ${pricingSection.isVisible ? "animate-fade-in-up delay-400" : "opacity-0"}`}>
+            <div className="text-center">
+              <h4 className="font-bold text-white mb-2">When does ReceiptSnap launch?</h4>
+              <p className="text-[var(--color-mint)] text-sm">Early access is available now. Full public launch is planned for Q1 2026.</p>
+            </div>
+            <div className="text-center">
+              <h4 className="font-bold text-white mb-2">Will there be a free trial?</h4>
+              <p className="text-[var(--color-mint)] text-sm">Yes! Early access members get free usage through April 2026. No credit card required.</p>
+            </div>
+            <div className="text-center">
+              <h4 className="font-bold text-white mb-2">Can I cancel anytime?</h4>
+              <p className="text-[var(--color-mint)] text-sm">Absolutely. No contracts, no commitment. Cancel with one click if it&apos;s not saving you time.</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-16 sm:py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12 sm:mb-16">
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl font-bold text-[var(--color-charcoal)] mb-4">
+      {/* FAQ Section */}
+      <section ref={faqSection.ref} id="faq" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className={`text-center mb-16 ${faqSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+            <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-forest)] mb-4">
               Frequently Asked Questions
             </h2>
-          </AnimatedSection>
-
-          <div className="space-y-4 sm:space-y-6">
+          </div>
+          
+          <div className="space-y-6">
             {[
-              { q: "Is my data secure?", a: "Yes. All receipt images and financial data are encrypted in transit (TLS 1.3) and at rest (AES-256). We use Supabase for our database, which is SOC 2 Type II compliant. We never sell your data, and you can delete your account and all data at any time." },
-              { q: "What happens to my data if I cancel?", a: "Your data is yours. Before canceling, you can export everything (receipts, categories, images) as a ZIP file. After cancellation, we retain your data for 30 days in case you change your mind, then permanently delete it." },
-              { q: "How accurate is the AI categorization?", a: "Our AI achieves 95%+ accuracy on standard receipts (retail, gas stations, restaurants). For ambiguous items, it learns from your corrections — after 10-20 receipts, accuracy approaches 99% for YOUR spending patterns. You always have final review before export." },
-              { q: "Can I switch from Expensify/QuickBooks Self-Employed?", a: "Yes! We're building a CSV import feature for Expensify and QuickBooks SE users. Upload your existing data, and we'll migrate it to ReceiptSnap. Your historical receipts won't be lost." },
-              { q: "How is this different from QuickBooks Self-Employed?", a: "QuickBooks SE is a full accounting suite with invoicing, bank connections, and tax filing — powerful but complex ($15/mo). ReceiptSnap does ONE thing: receipt tracking and categorization. If you just want dead-simple \"snap → categorize → export,\" we're 10x faster to learn and use." },
-              { q: "Do I need to connect my bank account?", a: "No. ReceiptSnap is receipt-only. We never ask for bank credentials or credit card access. If you want bank transaction matching, QuickBooks or Mint are better fits. We focus purely on the receipt chaos problem." },
-              { q: "What if I'm audited? Will this hold up with the IRS?", a: "ReceiptSnap stores timestamped receipt images with extracted data, which meets IRS documentation requirements. Our export format matches Schedule C categories exactly. However, we're a tool, not tax advice — always consult your CPA for audit situations." },
-              { q: "When does ReceiptSnap launch?", a: "January 2025. Waitlist members get early access in December 2024 to start capturing receipts before the tax-season rush. Join now to lock in Founder Pricing ($99/year for Pro, vs $299/year at launch)." },
-            ].map((faq, index) => (
-              <AnimatedSection key={index} delay={index * 50} className="bg-white rounded-xl border border-[var(--color-forest)]/10 overflow-hidden">
-                <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer p-5 sm:p-6 hover:bg-[var(--color-forest)]/5 transition-colors">
-                    <h3 className="font-semibold text-[var(--color-charcoal)] pr-4">{faq.q}</h3>
-                    <span className="text-[var(--color-forest)] text-xl group-open:rotate-45 transition-transform">+</span>
-                  </summary>
-                  <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
-                    <p className="text-[var(--color-slate)] leading-relaxed">{faq.a}</p>
-                  </div>
-                </details>
-              </AnimatedSection>
+              {
+                q: "How accurate is the AI at reading receipts?",
+                a: "The AI is designed to achieve 95%+ accuracy on standard printed receipts. For unusual formats (handwritten, faded, or damaged), accuracy may be lower, but you can always manually correct any errors. The system learns from your corrections to improve over time."
+              },
+              {
+                q: "What if I'm already using QuickBooks or Expensify?",
+                a: "ReceiptSnap is designed to complement your existing workflow. Export to CSV and import into QuickBooks, or use our direct QuickBooks integration (Pro plan). Many users find ReceiptSnap simpler for receipt capture while keeping QuickBooks for full accounting."
+              },
+              {
+                q: "Is my data secure?",
+                a: "Yes. We use 256-bit encryption, store data on SOC 2 compliant infrastructure (Supabase), and never access your bank accounts or financial data. You can delete all your data with one click at any time."
+              },
+              {
+                q: "What happens if I miss a receipt?",
+                a: "You can upload photos retroactively anytime — even photos from months ago in your camera roll. The AI will read the date from the receipt, not the upload date. We also support email forwarding for digital receipts."
+              },
+              {
+                q: "Do I need an accountant to use this?",
+                a: "No. ReceiptSnap is built for self-employed people who do their own taxes with TurboTax, H&R Block, or similar software. The export format uses standard IRS Schedule C categories. If you have an accountant, they'll love getting a clean spreadsheet instead of a shoebox of receipts."
+              },
+              {
+                q: "How is this different from Expensify or QuickBooks Self-Employed?",
+                a: "ReceiptSnap is designed specifically for solo self-employed workers (not teams), with a simpler interface and lower price. Expensify is built for enterprise expense reports. QuickBooks Self-Employed bundles receipt tracking with full accounting software. If you just want dead-simple receipt → tax category, ReceiptSnap is built for you."
+              },
+              {
+                q: "Can I track mileage too?",
+                a: "Yes, on the Pro plan and above. Log trips manually or use automatic GPS tracking. The IRS standard mileage deduction ($0.67/mile in 2025) can add up to $10,000+ in annual deductions for contractors who drive to job sites."
+              },
+              {
+                q: "When does ReceiptSnap launch?",
+                a: "We're in early access now. Full public launch is planned for Q1 2026. Join the waitlist to get immediate early access and lock in founding member pricing."
+              }
+            ].map((faq, i) => (
+              <div 
+                key={i} 
+                className={`bg-white rounded-xl p-6 shadow-sm border border-[var(--color-forest)]/5 ${faqSection.isVisible ? `animate-fade-in-up delay-${(i + 1) * 100}` : "opacity-0"}`}
+              >
+                <h3 className="font-[var(--font-display)] font-bold text-[var(--color-forest)] mb-3">{faq.q}</h3>
+                <p className="text-[var(--color-slate)] leading-relaxed">{faq.a}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-16 sm:py-24 bg-[var(--color-forest)]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <AnimatedSection>
-            <h2 className="font-[family-name:var(--font-fraunces)] text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-              Be One of the First 100 Contractors to Try ReceiptSnap
-            </h2>
-            <p className="text-white/80 text-lg sm:text-xl mb-8 max-w-2xl mx-auto">
-              We&apos;re building this for people exactly like you — self-employed professionals who are tired of losing money to disorganized receipts.
-            </p>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 max-w-xl mx-auto mb-8">
-              <div className="grid sm:grid-cols-2 gap-4 text-left mb-6">
-                <div className="flex items-start gap-3">
-                  <span className="text-[var(--color-mint)]">✓</span>
-                  <span className="text-white">Early access (December 2024)</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-[var(--color-mint)]">✓</span>
-                  <span className="text-white">30-day free trial</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-[var(--color-mint)]">✓</span>
-                  <span className="text-white">Founder Pricing locked in</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-[var(--color-mint)]">✓</span>
-                  <span className="text-white">Direct founder access</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:bg-white/20 focus:border-white/40 outline-none transition-all"
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-[var(--color-mint)] text-[var(--color-forest)] px-6 py-3 rounded-lg font-semibold hover:bg-[var(--color-mint-light)] transition-all disabled:opacity-70 whitespace-nowrap shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                >
-                  {isSubmitting ? "Joining..." : "Count Me In"}
-                </button>
-              </form>
-
-              {submitStatus === "success" && (
-                <p className="mt-3 text-[var(--color-mint)] font-medium flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  You&apos;re on the list!
-                </p>
-              )}
-            </div>
-
-            <p className="text-white/60 text-sm">
-              No spam, ever. We&apos;ll only email you when early access is ready.
-            </p>
-          </AnimatedSection>
+      {/* Final CTA Section */}
+      <section ref={finalCtaSection.ref} className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[var(--color-forest)] to-[var(--color-sage)]">
+        <div className={`max-w-4xl mx-auto text-center ${finalCtaSection.isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+          <h2 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+            Ready to Stop Overpaying Taxes?
+          </h2>
+          <p className="text-xl text-[var(--color-mint)] mb-8 max-w-2xl mx-auto">
+            Join contractors, freelancers, and gig workers who are already tracking receipts the smart way. Early access is free through April 2026 — no credit card required.
+          </p>
+          
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-6">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="flex-1 px-5 py-4 rounded-xl border-2 border-white/20 focus:border-[var(--color-mint)] focus:outline-none text-[var(--color-charcoal)] bg-white transition-colors"
+              required
+            />
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-[var(--color-gold)] text-[var(--color-forest)] px-8 py-4 rounded-xl font-bold hover:bg-[var(--color-gold)]/90 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {isSubmitting ? "Joining..." : "Join Now"}
+            </button>
+          </form>
+          
+          {submitStatus === "success" && (
+            <p className="text-[var(--color-mint)] font-medium mb-4">You&apos;re on the list! Check your email for next steps.</p>
+          )}
+          
+          <p className="text-white/70 text-sm italic">
+            &quot;You&apos;re building something for people exactly like me — finally.&quot; — Early access member feedback
+          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-[var(--color-charcoal)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[var(--color-forest)] rounded-lg flex items-center justify-center">
-                <span className="text-white text-lg">📸</span>
+      <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-[var(--color-charcoal)]">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-[var(--color-mint)] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">RS</span>
+                </div>
+                <span className="font-[var(--font-display)] font-bold text-xl text-white">ReceiptSnap</span>
               </div>
-              <span className="font-[family-name:var(--font-fraunces)] font-semibold text-white text-lg">ReceiptSnap</span>
+              <p className="text-gray-400 text-sm">
+                AI-powered receipt tracking for self-employed professionals. Stop overpaying taxes.
+              </p>
             </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
-              <a href="#features" className="text-white/60 hover:text-white transition-colors">Product</a>
-              <a href="#pricing" className="text-white/60 hover:text-white transition-colors">Pricing</a>
-              <a href="#faq" className="text-white/60 hover:text-white transition-colors">FAQ</a>
-              <a href="#" className="text-white/60 hover:text-white transition-colors">Blog</a>
-              <a href="mailto:hello@receiptsnap.ai" className="text-white/60 hover:text-white transition-colors">Contact</a>
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Product</h4>
+              <ul className="space-y-2">
+                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors text-sm">Features</a></li>
+                <li><a href="#pricing" className="text-gray-400 hover:text-white transition-colors text-sm">Pricing</a></li>
+                <li><a href="#faq" className="text-gray-400 hover:text-white transition-colors text-sm">FAQ</a></li>
+              </ul>
             </div>
-
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Company</h4>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Blog</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Contact</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-gray-400 text-sm">© 2026 ReceiptSnap AI. All rights reserved.</p>
             <div className="flex items-center gap-4">
-              <a href="https://twitter.com/receiptsnapai" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
-              <a href="https://producthunt.com/upcoming/receiptsnap" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Product Hunt">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M13.604 8.4h-3.405V12h3.405a1.8 1.8 0 0 0 0-3.6zM12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm1.604 14.4h-3.405V18H7.801V6h5.804a4.2 4.2 0 0 1 0 8.4z"/></svg>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Product Hunt">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M13.604 8.4h-3.405V12h3.405c.995 0 1.801-.806 1.801-1.8 0-.995-.806-1.8-1.801-1.8zM12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm1.604 14.4h-3.405V18H7.801V6h5.803c2.319 0 4.2 1.88 4.2 4.2 0 2.321-1.881 4.2-4.2 4.2z"/></svg>
               </a>
-              <a href="https://linkedin.com/company/receiptsnap" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="LinkedIn">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </a>
             </div>
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-            <p className="text-white/40">
-              ReceiptSnap AI is built by solo founders who got tired of overpaying taxes.
-            </p>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-white/40 hover:text-white/60 transition-colors">Privacy Policy</a>
-              <a href="#" className="text-white/40 hover:text-white/60 transition-colors">Terms of Service</a>
-            </div>
-          </div>
-
-          <div className="mt-4 text-center">
-            <p className="text-white/30 text-xs">© 2025 ReceiptSnap AI. All rights reserved.</p>
           </div>
         </div>
       </footer>
 
       {/* Mobile Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[var(--color-warm-white)]/95 backdrop-blur-sm border-t border-[var(--color-forest)]/10 md:hidden z-40">
-        <a
-          href="#waitlist"
-          className="block w-full text-center bg-[var(--color-forest)] text-white px-6 py-3 rounded-lg font-semibold shadow-lg"
-        >
+        <a href="#waitlist" className="block w-full text-center bg-[var(--color-forest)] text-white px-6 py-3 rounded-lg font-semibold shadow-lg">
           Join the Waitlist
         </a>
       </div>
